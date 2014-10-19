@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="WorkItemSpace" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+    <alias>
+        <typeAlias alias="BusinessMstr" assembly="GDS.WMS.Model.dll" type="GDS.WMS.Model.BusinessMstr" />
+    </alias>
+    <resultMaps>
+        <resultMap id="BusinessMstr" class="BusinessMstr">
+            <result property="QADNo" column="QADNo" />
+            <result property="Type" column="Type" />
+            <result property="UserId" column="UserId" />
+            <result property="InputTime" column="InputTime" />
+            <result property="Status" column="Status" />
+        </resultMap>
+    </resultMaps>
+    <statements>
+        <delete id="gds.wms.businessmstr.delete" resultMap="BusinessMstr" parameterClass="Hashtable">
+            delete from BusinessMstr where QADNo = #qadno#
+        </delete>
+        <select id="gds.wms.businessmstr.getall" resultMap="BusinessMstr" parameterClass="Hashtable">
+            select * from BusinessMstr where Status = #status#
+        </select>
+        <select id="gds.wms.businessmstr.get" resultMap="BusinessMstr" parameterClass="Hashtable">
+            select * from BusinessMstr where  QADNo = #qadno# and Type = #type#
+        </select>
+        <insert id="gds.wms.businessmstr.insert"  resultMap="BusinessMstr" parameterClass="list">
+            <![CDATA[
+           INSERT INTO BusinessMstr
+           (QADNo,Type,UserId,InputTime,Status) VALUES 
+        ]]>
+            <iterate conjunction=",">
+                <![CDATA[ 
+                (#[].QADNo#,#[].Type#,#[].UserId#,#[].InputTime#,#[].Status#) 
+                ]]>
+            </iterate>
+            <!--下面这句必须加，不然会提示找不到SELECT-->
+        </insert>
+        <update id="gds.wms.businessmstr.update" resultMap="BusinessMstr" parameterClass="list">
+            begin
+            <iterate conjunction="">
+                UPDATE BusinessMstr SET
+                Status = 1
+                WHERE
+                QADNo = #[].QADNo#;
+            </iterate>
+            end;
+        </update>
+    </statements>
+</sqlMap>

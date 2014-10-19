@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="WorkItemSpace" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+  <alias>
+    <typeAlias alias="BusinessDet" assembly="GDS.WMS.Model.dll" type="GDS.WMS.Model.BusinessDet" />
+  </alias>
+  <resultMaps>
+    <resultMap id="BusinessDet" class="BusinessDet">
+      <result property="QADNo" column="QADNo" />
+      <result property="PartNo" column="PartNo" />
+      <result property="Loc" column="Location" />
+      <result property="Qty" column="Qty" />
+      <result property="StorageQty" column="StorageQty" />
+      <result property="Status" column="Status" />
+      <result property="UpdateUser" column="UpdateUser" />
+      <result property="UpdateTime" column="UpdateTime" />
+    </resultMap>
+  </resultMaps>
+  <statements>
+    <delete id="gds.wms.businessdet.delete" resultMap="BusinessDet" parameterClass="Hashtable">
+      delete from BusinessDet where QADNo = #qadno#
+    </delete>
+    <select id="gds.wms.businessdet.getall" resultMap="BusinessDet" parameterClass="Hashtable">
+      select * from BusinessDet where Status = #status#
+    </select>
+    <select id="gds.wms.businessdet.get" resultMap="BusinessDet" parameterClass="Hashtable">
+      select * from BusinessDet where QADNo = #qadno# and PartNo = #part#
+    </select>
+    <insert id="gds.wms.businessdet.insert"  resultMap="BusinessDet" parameterClass="list">
+      <![CDATA[
+           INSERT INTO BusinessDet
+           (QADNo,PartNo,Qty,StorageQty,Status,UpdateUser,UpdateTime,Location) VALUES 
+          ]]>
+      <iterate conjunction=",">
+        <![CDATA[ 
+                (#[].QADNo#,#[].PartNo#,#[].Qty#,#[].StorageQty#,#[].Status#,#[].UpdateUser#,#[].UpdateTime#,#[].Loc#) 
+                ]]>
+      </iterate>
+      <!--下面这句必须加，不然会提示找不到SELECT-->
+    </insert>
+    <update id="gds.wms.businessdet.update" resultMap="BusinessDet" parameterClass="list">
+      begin
+      <iterate conjunction="">
+        UPDATE BusinessDet SET
+        Status = 1
+        WHERE
+        QADNo = #[].QADNo#;
+      </iterate>
+      end;
+    </update>
+  </statements>
+</sqlMap>

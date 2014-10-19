@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="WorkItemSpace" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+    <alias>
+        <typeAlias alias="AffairItem" assembly="GDS.WMS.Model.dll" type="GDS.WMS.Model.AffairItem" />
+    </alias>
+    <resultMaps>
+        <resultMap id="AffairItem" class="AffairItem">
+            <result property="Id" column="ID" />
+            <result property="QADNo" column="QADNo" />
+            <result property="PartNo" column="PartNo" />
+            <result property="SNID" column="SNID" />
+            <result property="AffairQty" column="AffairQty" />
+            <result property="AffairStartTime" column="AffairStartTime" />
+            <result property="AffairEndTime" column="AffairEndTime" />
+            <result property="Status" column="Status" />
+            <result property="Type" column="Type" />
+            <result property="UserId" column="UserId" />
+            <result property="InputTime" column="InputTime" />
+            <result property="Location" column="Location" />
+            <result property="Lotser" column="Lotser" />
+            <result property="Ref" column="Ref" />
+        </resultMap>
+    </resultMaps>
+    <statements>
+        <delete id="gds.wms.affairitem.delete" resultMap="AffairItem" parameterClass="Hashtable">
+            delete from Affair where Id = #id#
+        </delete>
+        <select id="gds.wms.affairitem.getpoi" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'POI'
+        </select>
+        <select id="gds.wms.affairitem.getpni" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'PNI'
+        </select>
+        <select id="gds.wms.affairitem.getaci" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'ACI'
+        </select>
+        <select id="gds.wms.affairitem.getsmo" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'SMO'
+        </select>
+      <select id="gds.wms.affairitem.getaco" resultMap="AffairItem" parameterClass="Hashtable">
+        select * from Affair where Status = #status# and Type = 'ACO'
+      </select>
+        <select id="gds.wms.affairitem.getwoo" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'WOO'
+        </select>
+        <select id="gds.wms.affairitem.getpno" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'PNO'
+        </select>
+        <select id="gds.wms.affairitem.getdpo" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status# and Type = 'DPO'
+        </select>
+        <select id="gds.wms.affairitem.getall" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Status = #status#
+        </select>
+        <select id="gds.wms.affairitem.get" resultMap="AffairItem" parameterClass="Hashtable">
+            select * from Affair where Id = #id#
+        </select>
+        <insert id="gds.wms.affairitem.insert"  resultMap="AffairItem" parameterClass="list">
+            <![CDATA[
+               INSERT INTO Affair
+               (QADNo,PartNo,SNID,AffairQty,AffairStartTime,AffairEndTime,Status,Type,UserId,InputTime,
+               Location,Lotser,Ref) VALUES 
+            ]]>
+            <iterate conjunction=",">
+                <![CDATA[ 
+                (#[].QADNo#,#[].PartNo#,#[].SNID#,#[].AffairQty#,#[].AffairStartTime#,#[].AffairEndTime#,#[].Status#,
+                #[].Type#,#[].UserId#,#[].InputTime#,#[].Location#,#[].Lotser#,#[].Ref#) 
+                ]]>
+            </iterate>
+            <!--下面这句必须加，不然会提示找不到SELECT-->
+        </insert>
+        <update id="gds.wms.affairitem.update" resultMap="AffairItem" parameterClass="list">
+            begin
+            <iterate conjunction="">
+                UPDATE Affair SET
+                AffairEndTime=getdate(),Status = #[].Status#
+                WHERE
+                Id = #[].Id#;
+            </iterate>
+            end;
+        </update>
+    </statements>
+</sqlMap>

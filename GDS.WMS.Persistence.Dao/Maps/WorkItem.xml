@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="WorkItemSpace" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+    <alias>
+        <typeAlias alias="WorkItem" assembly="GDS.WMS.Model.dll" type="GDS.WMS.Model.WorkItem" />
+    </alias>
+    <resultMaps>
+        <resultMap id="WorkItem" class="WorkItem">
+            <result property="PartNo" column="PartNo" />
+            <result property="PartDesc1" column="PartDesc1" />
+            <result property="PartDesc2" column="PartDesc2" />
+            <result property="PartUm" column="PartUm" />
+        </resultMap>
+    </resultMaps>
+    <statements>
+        <delete id="gds.wms.workitem.delete" resultMap="WorkItem" parameterClass="Hashtable">
+            delete from WorkItem where PartNo = #part#
+        </delete>
+        <select id="gds.wms.workitem.getall" resultMap="WorkItem" parameterClass="Hashtable">
+            select * from WorkItem
+        </select>
+        <select id="gds.wms.workitem.get" resultMap="WorkItem" parameterClass="Hashtable">
+            select * from WorkItem where PartNo = #part#
+        </select>
+        <insert id="gds.wms.workitem.insert"  resultMap="WorkItem" parameterClass="list">
+        <![CDATA[
+              INSERT INTO WORKITEM  
+        ]]>
+        <iterate conjunction="union all">
+                <![CDATA[ 
+               select #[].PartNo#,#[].PartDesc1#,#[].PartDesc2#,#[].PartUm#,0 
+                ]]>
+            </iterate>
+            <!--下面这句必须加，不然会提示找不到SELECT-->
+        </insert>
+        <update id="gds.wms.workitem.update" resultMap="WorkItem" parameterClass="list">
+            begin
+            <iterate conjunction="">
+                UPDATE WORKITEM SET
+                PartDesc1=#[].PartDesc1#,PartDesc2=#[].PartDesc2#,PartUm=#[].PartUm#
+                WHERE
+                PartNo = #[].PartNo#;
+            </iterate>
+            end;
+        </update>
+    </statements>
+</sqlMap>
