@@ -42,6 +42,20 @@ namespace GDS.WMS.Services.Impl
                 {
                     var fileStream = new FileStream(Path + filename, FileMode.Open);
                     sftp.UploadFile(fileStream, FilePath + "in/" + filename);
+                    
+                    //采购入库
+                    if (type == "POI")
+                    {
+                        if (IsTrue == "false")
+                        {
+                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",woo");
+                        }
+                        else
+                        {
+                            var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                        }
+                        stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
+                    }
                     //工单发料
                     if (type == "WOO")
                     {
@@ -134,6 +148,11 @@ namespace GDS.WMS.Services.Impl
             IList<AffairItem> entities = null;
             var hashTable = new Hashtable { { "status", 0 } };
             var dao = new ServicesBase<AffairItem>(new Dao<AffairItem>());
+            //采购单入库
+            if (type == "POI")
+            {
+                entities = dao.FetchMany("gds.wms.affairitem.getpoi", hashTable);
+            }
             //工单发料
             if (type == "WOO")
             {
