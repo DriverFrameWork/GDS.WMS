@@ -41,25 +41,34 @@ namespace GDS.WMS.Services.Impl
                 if (data != null && data.Count > 0)
                 {
                     var fileStream = new FileStream(Path + filename, FileMode.Open);
-                    sftp.UploadFile(fileStream,FilePath+"in/" + filename);
-                    //File.Delete(Path + filename);
+                    sftp.UploadFile(fileStream, FilePath + "in/" + filename);
                     //工单发料
                     if (type == "WOO")
                     {
-                        var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                        if (IsTrue == "false")
+                        {
+                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",woo");
+                        }
+                        else
+                        {
+                            var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                        }
                         stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
                     }
-                    //计划外入库
-                    if (type == "PNI")
+                    //计划外入库/计划外出库
+                    if (type == "PNO"||type=="PNI")
                     {
-                        //var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                        if (IsTrue == "false")
+                        {
+                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",unp");
+                        }
+                        else
+                        {
+                            var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",unp");
+                        }
+                        stream = sftp.ReadAllText(FilePath + "out/unp-result.csv", Encoding.Default);
                     }
-                    //计划外出库
-                    if (type == "PNO")
-                    {
-                        //var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
-                    }
-                    //调拨入库
+                    //调拨出入库
                     if (type == "ACI" || type == "ACO")
                     {
                         if (IsTrue == "false")

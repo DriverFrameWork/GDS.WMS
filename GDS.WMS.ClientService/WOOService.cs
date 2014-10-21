@@ -25,6 +25,8 @@ namespace GDS.WMS.ClientService
                 sw.Start();
                 var service = ServicesFactory.GetInstance<IMaster>();
                 service.Run("WOO");
+                service.Run("PNI");
+                service.Run("PNO");
                 sw.Stop();
                 logger.Info("同步事务主数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
             }

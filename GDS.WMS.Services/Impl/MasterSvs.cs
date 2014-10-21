@@ -47,9 +47,16 @@ namespace GDS.WMS.Services.Impl
             //计划外入库||计划外出库
             if (type == "PNI" || type == "PNO")
             {
-                master = sftp.ReadAllText(FilePath + "out/wms-unp.csv", Encoding.Default);
-                detail = sftp.ReadAllText(FilePath + "out/wms-unpd.csv", Encoding.Default);
-
+                if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+                {
+                    master = sftp.ReadAllText(FilePath + "out/wms-unp.csv", Encoding.Default);
+                    sftp.DeleteFile(FilePath + "out/wms-woo.csv");
+                }
+                if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+                {
+                    detail = sftp.ReadAllText(FilePath + "out/wms-unpd.csv", Encoding.Default);
+                    sftp.DeleteFile(FilePath + "out/wms-wood.csv");
+                }
             }
             //调拨入库/出库
             if (type == "ACI" || type == "ACO" || type == "SMO")
@@ -136,7 +143,6 @@ namespace GDS.WMS.Services.Impl
             }
             #endregion
             sftp.Disconnect();
-
             response.IsSuccess = true;
             response.Count = datam.Count;
             response.Data = datam;

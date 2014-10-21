@@ -59,8 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PNIOAffairService.cs" />
     <Compile Include="ACIOAffairService.cs" />
-    <Compile Include="AffairService.cs" />
+    <Compile Include="WOOAffairService.cs" />
     <Compile Include="ACIOService.cs" />
     <Compile Include="WOOService.cs" />
     <Compile Include="WorkItemService.cs" />
