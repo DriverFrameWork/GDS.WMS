@@ -42,19 +42,25 @@ namespace GDS.WMS.Services.Impl
                 {
                     var fileStream = new FileStream(Path + filename, FileMode.Open);
                     sftp.UploadFile(fileStream, FilePath + "in/" + filename);
-                    
                     //采购入库
                     if (type == "POI")
                     {
+                        sftp.UploadFile(fileStream, "/app/tomcat6/webapps/web/" + filename);
                         if (IsTrue == "false")
                         {
-                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",woo");
+                            ssh.RunCommand("/backup/qad/bat/client.pointest" + " " + filename);
                         }
                         else
                         {
-                            var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                            var termial = ssh.RunCommand("/backup/qad/bat/client.poin" + " " + filename);
                         }
-                        stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
+                        foreach (var affairItem in data)
+                        {
+                            affairItem.Status = 1;
+                        }
+                        dao.Update("gds.wms.affairitem", data);
+                        return response;
+                        //stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
                     }
                     //工单发料
                     if (type == "WOO")
@@ -70,7 +76,7 @@ namespace GDS.WMS.Services.Impl
                         stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
                     }
                     //计划外入库/计划外出库
-                    if (type == "PNO"||type=="PNI")
+                    if (type == "PNO" || type == "PNI")
                     {
                         if (IsTrue == "false")
                         {
@@ -152,6 +158,24 @@ namespace GDS.WMS.Services.Impl
             if (type == "POI")
             {
                 entities = dao.FetchMany("gds.wms.affairitem.getpoi", hashTable);
+                using (var sw = fileInfo.CreateText())
+                {
+                    foreach (var entity in entities)
+                    {
+                        var id = entity.Id;
+                        var qadNo = entity.QADNo.Trim();
+                        var line = entity.SNID;
+                        var partNo = entity.PartNo.Trim();
+                        var qty = entity.AffairQty;
+                        var loc = entity.Location;
+                        var lotser = string.IsNullOrEmpty(entity.Lotser) ? " " : entity.Lotser;
+                        var xh = string.IsNullOrEmpty(entity.Ref) ? " " : entity.Ref;
+                        sw.WriteLine(id + " " + qadNo + " " + line + " " + qty);
+                    }
+                    sw.Flush();
+                    sw.Close();
+                    return entities;
+                }
             }
             //工单发料
             if (type == "WOO")
