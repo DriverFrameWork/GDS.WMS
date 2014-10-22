@@ -32,7 +32,7 @@ namespace GDS.WMS.WFApplication
         {
             InitializeComponent();
             BootStrapper.ServicesRegistry();
-            RunAffair();
+            RunMaster();
         }
 
         private void btnSyncWorkItem_Click(object sender, EventArgs e)
@@ -104,8 +104,8 @@ namespace GDS.WMS.WFApplication
         public BaseResponse RunMaster()
         {
             var service = ServicesFactory.GetInstance<IMaster>();
-            var response = service.Run("ACO");
-             service.Run("ACI");
+            var response = service.Run("WOO");
+             //service.Run("ACI");
             return response;
         }
     }

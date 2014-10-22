@@ -37,25 +37,25 @@ namespace GDS.WMS.Services.Impl
                     master = sftp.ReadAllText(FilePath + "out/wms-woo.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-woo.csv");
                 }
-                if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+                if (sftp.Exists(FilePath + "out/wms-wood.csv"))
                 {
                     detail = sftp.ReadAllText(FilePath + "out/wms-wood.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-wood.csv");
                 }
-
             }
             //计划外入库||计划外出库
             if (type == "PNI" || type == "PNO")
             {
-                if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+
+                if (sftp.Exists(FilePath + "out/wms-unp.csv"))
                 {
                     master = sftp.ReadAllText(FilePath + "out/wms-unp.csv", Encoding.Default);
-                    sftp.DeleteFile(FilePath + "out/wms-woo.csv");
+                    sftp.DeleteFile(FilePath + "out/wms-unp.csv");
                 }
-                if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+                if (sftp.Exists(FilePath + "out/wms-unpd.csv"))
                 {
                     detail = sftp.ReadAllText(FilePath + "out/wms-unpd.csv", Encoding.Default);
-                    sftp.DeleteFile(FilePath + "out/wms-wood.csv");
+                    sftp.DeleteFile(FilePath + "out/wms-unpd.csv");
                 }
             }
             //调拨入库/出库
@@ -69,7 +69,6 @@ namespace GDS.WMS.Services.Impl
                 if (sftp.Exists(FilePath + "out/wms-trd.csv"))
                 {
                     detail = sftp.ReadAllText(FilePath + "out/wms-trd.csv", Encoding.Default);
-
                     sftp.DeleteFile(FilePath + "out/wms-trd.csv");
                 }
             }
