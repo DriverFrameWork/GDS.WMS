@@ -75,12 +75,12 @@ namespace GDS.WMS.Services.Impl
                 }
                 if (string.IsNullOrEmpty(master))
                 {
-                    response.ErrorMessage = "事务主档没有内容";
+                    logger.Info("事务主档没有内容");
                     return response;
                 }
                 if (string.IsNullOrEmpty(detail))
                 {
-                    response.ErrorMessage = "事务明细没有内容";
+                    logger.Info("事务明细没有内容");
                     return response;
                 }
                 var masterEnginer = new FileHelperEngine<BusinessMstr>();
@@ -144,7 +144,6 @@ namespace GDS.WMS.Services.Impl
             {
                 logger.Error(ex.Message);
             }
-
             if (type == "WOO")
             {
                 if (sftp.Exists(FilePath + "out/wms-woo.csv"))
@@ -181,7 +180,6 @@ namespace GDS.WMS.Services.Impl
             }
             sftp.Disconnect();
             response.IsSuccess = true;
-
             return response;
         }
     }

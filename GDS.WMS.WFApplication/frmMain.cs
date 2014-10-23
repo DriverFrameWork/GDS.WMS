@@ -103,8 +103,25 @@ namespace GDS.WMS.WFApplication
 
         public BaseResponse RunMaster()
         {
+            var response = new BaseResponse();
             var service = ServicesFactory.GetInstance<IMaster>();
-            var response = service.Run("WOO");
+            service.Run("WOO");
+            //logger.Info("读取工单领料结束");
+
+            //logger.Info("读取计划外入库开始");
+            service.Run("PNI");
+            //logger.Info("读取计划外入库结束");
+
+            //logger.Info("读取计划外出库开始");
+            service.Run("PNO");
+            //logger.Info("读取计划外出库结束");
+
+            //logger.Info("读取调拨入库开始");
+            service.Run("ACI");
+            //logger.Info("读取调拨入库结束");
+
+            //logger.Info("读取调拨出库开始");
+            service.Run("ACO");
              //service.Run("ACI");
             return response;
         }
