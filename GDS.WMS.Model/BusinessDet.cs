@@ -25,7 +25,7 @@ namespace GDS.WMS.Model
         private string _qadNo;
         public string QADNo
         {
-            get { return this._qadNo.ToUpper(); }
+            get { return this._qadNo; }
             set { this._qadNo = value; }
         }
 
@@ -80,7 +80,7 @@ namespace GDS.WMS.Model
         private string _partNo;
         public string PartNo
         {
-            get { return this._partNo.ToUpper(); }
+            get { return this._partNo; }
             set { this._partNo = value; }
         }
         /// <summary>

@@ -23,6 +23,7 @@ namespace GDS.WMS.ClientService
                 sw.Start();
                 var service = ServicesFactory.GetInstance<IAffair>();
                 service.Run("WOO");
+                service.Run("POI");
                 sw.Stop();
                 logger.Info("同步事务数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
             }

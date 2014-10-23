@@ -11,20 +11,20 @@
   <schedule>
     <!--定义同步物料基本信息任务 每一分钟同步一次-->
     <job>
-      <name>ACIOJob</name>
-      <group>ACIOGroup</group>
-      <description>同步物料基本信息任务</description>
-      <job-type>GDS.WMS.ClientService.ACIOService,GDS.WMS.ClientService</job-type>
+      <name>MasterJob</name>
+      <group>MasterGroup</group>
+      <description>同步主数据计划任务</description>
+      <job-type>GDS.WMS.ClientService.MasterService,GDS.WMS.ClientService</job-type>
       <durable>true</durable>
       <recover>false</recover>
     </job>
     <!--定义示例任务1 触发器 每10分钟执行一次DemoJob1任务-->
     <trigger>
       <cron>
-        <name>ACIOTrigger</name>
-        <group>ACIOTriggerGroup</group>
-        <job-name>ACIOJob</job-name>
-        <job-group>ACIOGroup</job-group>
+        <name>MasterTrigger</name>
+        <group>MasterTriggerGroup</group>
+        <job-name>MasterJob</job-name>
+        <job-group>MasterGroup</job-group>
         <cron-expression>0 0/5 * * * ?</cron-expression>
       </cron>
     </trigger>
