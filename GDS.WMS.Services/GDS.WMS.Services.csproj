@@ -40,6 +40,12 @@
     <Reference Include="Autofac.Configuration">
       <HintPath>E:\Lib\Autofac.Configuration.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Logging">
+      <HintPath>E:\Lib\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Log4Net">
+      <HintPath>E:\Lib\Common.Logging.Log4Net.dll</HintPath>
+    </Reference>
     <Reference Include="FileHelpers, Version=3.0.39.0, Culture=neutral, PublicKeyToken=3e0c08d59cc3d657, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\Lib\FileHelpers.dll</HintPath>

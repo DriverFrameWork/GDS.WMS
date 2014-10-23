@@ -19,6 +19,7 @@ namespace GDS.WMS.Services.Impl
         private static readonly string Password = ConfigurationManager.AppSettings["Password"] ?? "mfg123";
         private static readonly string HostName = ConfigurationManager.AppSettings["HostName"] ?? "192.168.90.90";
         private static readonly string FilePath = ConfigurationManager.AppSettings["Path"];
+        private static readonly Common.Logging.ILog logger = Common.Logging.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public BaseResponse Run(string type)
         {
@@ -29,122 +30,158 @@ namespace GDS.WMS.Services.Impl
             var master = string.Empty;
             var detail = string.Empty;
 
-            //工单发料
+            try
+            {
+                if (type == "WOO")
+                {
+                    if (sftp.Exists(FilePath + "out/wms-woo.csv"))
+                    {
+                        master = sftp.ReadAllText(FilePath + "out/wms-woo.csv", Encoding.Default);
+                    }
+                    if (sftp.Exists(FilePath + "out/wms-wood.csv"))
+                    {
+                        detail = sftp.ReadAllText(FilePath + "out/wms-wood.csv", Encoding.Default);
+                    }
+                }
+                //计划外入库||计划外出库
+                if (type == "PNI" || type == "PNO")
+                {
+
+                    if (sftp.Exists(FilePath + "out/wms-unp.csv"))
+                    {
+                        master = sftp.ReadAllText(FilePath + "out/wms-unp.csv", Encoding.Default);
+                    }
+                    if (sftp.Exists(FilePath + "out/wms-unpd.csv"))
+                    {
+                        detail = sftp.ReadAllText(FilePath + "out/wms-unpd.csv", Encoding.Default);
+                    }
+                }
+                //调拨入库/出库
+                if (type == "ACI" || type == "ACO" || type == "SMO")
+                {
+                    if (sftp.Exists(FilePath + "out/wms-tr.csv"))
+                    {
+                        master = sftp.ReadAllText(FilePath + "out/wms-tr.csv", Encoding.Default);
+                    }
+                    if (sftp.Exists(FilePath + "out/wms-trd.csv"))
+                    {
+                        detail = sftp.ReadAllText(FilePath + "out/wms-trd.csv", Encoding.Default);
+                    }
+                }
+                //部门领用
+                if (type == "DPO")
+                {
+
+                }
+                if (string.IsNullOrEmpty(master))
+                {
+                    response.ErrorMessage = "事务主档没有内容";
+                    return response;
+                }
+                if (string.IsNullOrEmpty(detail))
+                {
+                    response.ErrorMessage = "事务明细没有内容";
+                    return response;
+                }
+                var masterEnginer = new FileHelperEngine<BusinessMstr>();
+                var entities = masterEnginer.ReadStringAsList(master);
+                #region 保存事务主表信息
+                var addm = new List<BusinessMstr>();
+                var datam = new List<BusinessMstr>();
+                for (var index = 0; index < entities.Count; index++)
+                {
+                    var entity = entities[index];
+                    var hashTable = new Hashtable { { "qadno", entity.QADNo }, { "type", entity.Type } };
+                    var item = dao.FetchOne("gds.wms.businessmstr.get", hashTable);
+                    //新增事务主表数据
+                    if (string.IsNullOrEmpty(item.QADNo))
+                    {
+                        addm.Add(entity);
+                        datam.Add(entity);
+                    }
+                    if (addm.Count == 50)
+                    {
+                        dao.Add("gds.wms.businessmstr", addm);
+                        addm.Clear();
+                    }
+                    if (index != entities.Count - 1) continue;
+                    dao.Add("gds.wms.businessmstr", addm);
+                }
+                #endregion
+
+                #region 保存事务从表信息
+
+                var daodet = new ServicesBase<BusinessDet>(new Dao<BusinessDet>());
+                var detEnginer = new FileHelperEngine<BusinessDet>();
+
+                var items = detEnginer.ReadStringAsList(detail);
+                var addd = new List<BusinessDet>();
+                var datad = new List<BusinessDet>();
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var det = items[i];
+                    var hashTable = new Hashtable { { "qadno", det.QADNo }, { "part", det.PartNo } };
+                    var item = daodet.FetchOne("gds.wms.businessdet.get", hashTable);
+                    //新增事务从表数据
+                    if (string.IsNullOrEmpty(item.QADNo))
+                    {
+                        addd.Add(det);
+                        datad.Add(det);
+                    }
+                    if (addd.Count == 50)
+                    {
+                        daodet.Add("gds.wms.businessdet", addd);
+                        addd.Clear();
+                    }
+                    if (i != items.Count - 1) continue;
+                    daodet.Add("gds.wms.businessdet", addd);
+                }
+                response.Count = datam.Count;
+                response.Data = datam;
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message);
+            }
+
             if (type == "WOO")
             {
                 if (sftp.Exists(FilePath + "out/wms-woo.csv"))
                 {
-                    master = sftp.ReadAllText(FilePath + "out/wms-woo.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-woo.csv");
                 }
                 if (sftp.Exists(FilePath + "out/wms-wood.csv"))
                 {
-                    detail = sftp.ReadAllText(FilePath + "out/wms-wood.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-wood.csv");
+                }
+            }
+            if (type == "ACI" || type == "ACO" || type == "SMO")
+            {
+                if (sftp.Exists(FilePath + "out/wms-tr.csv"))
+                {
+                    sftp.DeleteFile(FilePath + "out/wms-tr.csv");
+                }
+                if (sftp.Exists(FilePath + "out/wms-trd.csv"))
+                {
+                    sftp.DeleteFile(FilePath + "out/wms-trd.csv");
                 }
             }
             //计划外入库||计划外出库
             if (type == "PNI" || type == "PNO")
             {
-
                 if (sftp.Exists(FilePath + "out/wms-unp.csv"))
                 {
-                    master = sftp.ReadAllText(FilePath + "out/wms-unp.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-unp.csv");
                 }
                 if (sftp.Exists(FilePath + "out/wms-unpd.csv"))
                 {
-                    detail = sftp.ReadAllText(FilePath + "out/wms-unpd.csv", Encoding.Default);
                     sftp.DeleteFile(FilePath + "out/wms-unpd.csv");
                 }
             }
-            //调拨入库/出库
-            if (type == "ACI" || type == "ACO" || type == "SMO")
-            {
-                if (sftp.Exists(FilePath + "out/wms-tr.csv"))
-                {
-                    master = sftp.ReadAllText(FilePath + "out/wms-tr.csv", Encoding.Default);
-                    sftp.DeleteFile(FilePath + "out/wms-tr.csv");
-                }
-                if (sftp.Exists(FilePath + "out/wms-trd.csv"))
-                {
-                    detail = sftp.ReadAllText(FilePath + "out/wms-trd.csv", Encoding.Default);
-                    sftp.DeleteFile(FilePath + "out/wms-trd.csv");
-                }
-            }
-            //部门领用
-            if (type == "DPO")
-            {
-
-            }
-            if (string.IsNullOrEmpty(master))
-            {
-                response.ErrorMessage = "事务主档没有内容";
-                return response;
-            }
-            if (string.IsNullOrEmpty(detail))
-            {
-                response.ErrorMessage = "事务明细没有内容";
-                return response;
-            }
-            var masterEnginer = new FileHelperEngine<BusinessMstr>();
-            var entities = masterEnginer.ReadStringAsList(master);
-            #region 保存事务主表信息
-            var addm = new List<BusinessMstr>();
-            var datam = new List<BusinessMstr>();
-            for (var index = 0; index < entities.Count; index++)
-            {
-                var entity = entities[index];
-                var hashTable = new Hashtable { { "qadno", entity.QADNo }, { "type", entity.Type } };
-                var item = dao.FetchOne("gds.wms.businessmstr.get", hashTable);
-                //新增事务主表数据
-                if (string.IsNullOrEmpty(item.QADNo))
-                {
-                    addm.Add(entity);
-                    datam.Add(entity);
-                }
-                if (addm.Count == 50)
-                {
-                    dao.Add("gds.wms.businessmstr", addm);
-                    addm.Clear();
-                }
-                if (index != entities.Count - 1) continue;
-                dao.Add("gds.wms.businessmstr", addm);
-            }
-            #endregion
-
-            #region 保存事务从表信息
-
-            var daodet = new ServicesBase<BusinessDet>(new Dao<BusinessDet>());
-            var detEnginer = new FileHelperEngine<BusinessDet>();
-
-            var items = detEnginer.ReadStringAsList(detail);
-            var addd = new List<BusinessDet>();
-            var datad = new List<BusinessDet>();
-            for (int i = 0; i < items.Count; i++)
-            {
-                var det = items[i];
-                var hashTable = new Hashtable { { "qadno", det.QADNo }, { "part", det.PartNo } };
-                var item = daodet.FetchOne("gds.wms.businessdet.get", hashTable);
-                //新增事务从表数据
-                if (string.IsNullOrEmpty(item.QADNo))
-                {
-                    addd.Add(det);
-                    datad.Add(det);
-                }
-                if (addd.Count == 50)
-                {
-                    daodet.Add("gds.wms.businessdet", addd);
-                    addd.Clear();
-                }
-                if (i != items.Count - 1) continue;
-                daodet.Add("gds.wms.businessdet", addd);
-            }
-            #endregion
             sftp.Disconnect();
             response.IsSuccess = true;
-            response.Count = datam.Count;
-            response.Data = datam;
+
             return response;
         }
     }
