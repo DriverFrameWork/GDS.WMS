@@ -27,11 +27,10 @@ namespace GDS.WMS.Services.Impl
             var dao = new ServicesBase<BusinessMstr>(new Dao<BusinessMstr>());
             var sftp = new SftpClient(HostName, UserName, Password);
             sftp.Connect();
-            var master = string.Empty;
-            var detail = string.Empty;
-
             try
             {
+                var master = string.Empty;
+                var detail = string.Empty;
                 if (type == "WOO")
                 {
                     if (sftp.Exists(FilePath + "out/wms-woo.csv"))
@@ -104,9 +103,9 @@ namespace GDS.WMS.Services.Impl
                         dao.Add("gds.wms.businessmstr", addm);
                         addm.Clear();
                     }
-                    if (index != entities.Count - 1) continue;
-                    dao.Add("gds.wms.businessmstr", addm);
                 }
+                dao.Add("gds.wms.businessmstr", addm);
+                addm.Clear();
                 #endregion
 
                 #region 保存事务从表信息
@@ -120,22 +119,24 @@ namespace GDS.WMS.Services.Impl
                 for (int i = 0; i < items.Count; i++)
                 {
                     var det = items[i];
-                    var hashTable = new Hashtable { { "qadno", det.QADNo }, { "part", det.PartNo } };
+                    if (string.IsNullOrEmpty(det.QADNo) || string.IsNullOrEmpty(det.PartNo)) continue;
+                    var hashTable = new Hashtable();
+                    hashTable.Clear();
+                    hashTable.Add("qadno", det.QADNo);
+                    hashTable.Add("part", det.PartNo);
                     var item = daodet.FetchOne("gds.wms.businessdet.get", hashTable);
                     //新增事务从表数据
-                    if (string.IsNullOrEmpty(item.QADNo))
+                    if (string.IsNullOrEmpty(item.QADNo) && string.IsNullOrEmpty(item.PartNo))
                     {
                         addd.Add(det);
                         datad.Add(det);
                     }
-                    if (addd.Count == 50)
-                    {
-                        daodet.Add("gds.wms.businessdet", addd);
-                        addd.Clear();
-                    }
-                    if (i != items.Count - 1) continue;
+                    if (addd.Count != 50) continue;
                     daodet.Add("gds.wms.businessdet", addd);
+                    addd.Clear();
                 }
+                daodet.Add("gds.wms.businessdet", addd);
+                addd.Clear();
                 response.Count = datam.Count;
                 response.Data = datam;
                 #endregion

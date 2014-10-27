@@ -32,8 +32,8 @@
           ]]>
       <iterate conjunction=",">
         <![CDATA[ 
-                (#[].QADNo#,#[].PartNo#,#[].Qty#,#[].StorageQty#,#[].Status#,#[].UpdateUser#,#[].UpdateTime#,#[].Loc#) 
-                ]]>
+        (#[].QADNo#,#[].PartNo#,#[].Qty#,#[].StorageQty#,#[].Status#,#[].UpdateUser#,#[].UpdateTime#,#[].Loc#) 
+        ]]>
       </iterate>
       <!--下面这句必须加，不然会提示找不到SELECT-->
     </insert>
