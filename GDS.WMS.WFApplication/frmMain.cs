@@ -63,7 +63,7 @@ namespace GDS.WMS.WFApplication
                     var hashTable = new Hashtable { { "part", t1.PartNo } };
                     var item = dao.FetchOne("gds.wms.workitem.get", hashTable);
                     //新增物料数据
-                    if (string.IsNullOrEmpty(item.PartNo))
+                    if (item == null)
                     {
                         add.Add(t1);
                         data.Add(t1);
@@ -95,7 +95,7 @@ namespace GDS.WMS.WFApplication
         public BaseResponse RunAffair()
         {
             var service = ServicesFactory.GetInstance<IAffair>();
-            var response =   service.Run("ACI");
+            var response = service.Run("ACI");
             service.Run("ACO");
             return response;
         }
@@ -122,7 +122,7 @@ namespace GDS.WMS.WFApplication
 
             ////logger.Info("读取调拨出库开始");
             //service.Run("ACO");
-             //service.Run("ACI");
+            //service.Run("ACI");
             return response;
         }
     }

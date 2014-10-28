@@ -58,7 +58,7 @@ namespace GDS.WMS.Services.Impl
                     var hashTable = new Hashtable { { "part", entity.PartNo } };
                     var item = dao.FetchOne("gds.wms.workitem.get", hashTable);
                     //新增物料数据
-                    if (string.IsNullOrEmpty(item.PartNo))
+                    if (item == null)
                     {
                         add.Add(entity);
                     }
@@ -72,6 +72,7 @@ namespace GDS.WMS.Services.Impl
                 }
                 response.IsSuccess = true;
                 response.Count = entities.Count;
+                sftp.DeleteFile(filePath + filename + ".csv");
             }
             catch (Exception ex)
             {
