@@ -22,14 +22,14 @@ namespace GDS.WMS.Services
         #region 新增 删除 更新
 
 
-        public bool Add(string statament,IList<T> model)
+        public bool Add(string statament, IList<T> model)
         {
-            return _func.Add(statament,model);
+            return _func.Add(statament, model);
         }
 
-        public bool Update(string statament,IList<T> model)
+        public bool Update(string statament, IList<T> model)
         {
-            return _func.Update(statament,model);
+            return _func.Update(statament, model);
         }
         public bool Delete(string statement, Hashtable hashtable)
         {
@@ -39,8 +39,8 @@ namespace GDS.WMS.Services
 
         public T FetchOne(string statement, Hashtable hashtable)
         {
-            var entities =  this._func.Fetch(statement,hashtable);
-            return entities.Count > 0 ? entities[0] : new T();
+            var entities = this._func.Fetch(statement, hashtable);
+            return entities.Count > 0 ? entities[0] : null;
         }
         public IList<T> FetchMany(string statement, Hashtable hashtable)
         {

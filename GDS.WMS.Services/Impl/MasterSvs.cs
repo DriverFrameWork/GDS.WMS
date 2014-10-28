@@ -90,19 +90,17 @@ namespace GDS.WMS.Services.Impl
                 for (var index = 0; index < entities.Count; index++)
                 {
                     var entity = entities[index];
-                    var hashTable = new Hashtable { { "qadno", entity.QADNo }, { "type", entity.Type } };
+                    var hashTable = new Hashtable { { "qadno", entity.QADNo.Trim() }, { "type", entity.Type.Trim() } };
                     var item = dao.FetchOne("gds.wms.businessmstr.get", hashTable);
                     //新增事务主表数据
-                    if (string.IsNullOrEmpty(item.QADNo))
+                    if (item == null)
                     {
                         addm.Add(entity);
                         datam.Add(entity);
                     }
-                    if (addm.Count == 50)
-                    {
-                        dao.Add("gds.wms.businessmstr", addm);
-                        addm.Clear();
-                    }
+                    if (addm.Count != 50) continue;
+                    dao.Add("gds.wms.businessmstr", addm);
+                    addm.Clear();
                 }
                 dao.Add("gds.wms.businessmstr", addm);
                 addm.Clear();
@@ -116,7 +114,7 @@ namespace GDS.WMS.Services.Impl
                 var items = detEnginer.ReadStringAsList(detail);
                 var addd = new List<BusinessDet>();
                 var datad = new List<BusinessDet>();
-                for (int i = 0; i < items.Count; i++)
+                for (var i = 0; i < items.Count; i++)
                 {
                     var det = items[i];
                     if (string.IsNullOrEmpty(det.QADNo) || string.IsNullOrEmpty(det.PartNo)) continue;
@@ -126,7 +124,7 @@ namespace GDS.WMS.Services.Impl
                     hashTable.Add("part", det.PartNo);
                     var item = daodet.FetchOne("gds.wms.businessdet.get", hashTable);
                     //新增事务从表数据
-                    if (string.IsNullOrEmpty(item.QADNo) && string.IsNullOrEmpty(item.PartNo))
+                    if (item == null)
                     {
                         addd.Add(det);
                         datad.Add(det);
@@ -144,6 +142,7 @@ namespace GDS.WMS.Services.Impl
             catch (Exception ex)
             {
                 logger.Error(ex.Message);
+                return response;
             }
             if (type == "WOO")
             {
