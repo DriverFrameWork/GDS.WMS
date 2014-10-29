@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Configuration;
+using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace GDS.WMS.Services.Impl
         private static readonly string Password = ConfigurationManager.AppSettings["Password"] ?? "mfg123";
         private static readonly string HostName = ConfigurationManager.AppSettings["HostName"] ?? "192.168.90.90";
         private static readonly string FilePath = ConfigurationManager.AppSettings["Path"];
+        private static readonly string DownloadPath = ConfigurationManager.AppSettings["DownloadPath"];
+
         private static readonly Common.Logging.ILog logger = Common.Logging.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public BaseResponse Run(string type)
@@ -26,6 +29,8 @@ namespace GDS.WMS.Services.Impl
             var response = new BaseResponse();
             var dao = new ServicesBase<BusinessMstr>(new Dao<BusinessMstr>());
             var sftp = new SftpClient(HostName, UserName, Password);
+            var scp = new ScpClient(HostName, UserName, Password);
+            scp.Connect();
             sftp.Connect();
             try
             {
@@ -152,7 +157,11 @@ namespace GDS.WMS.Services.Impl
                 }
                 if (sftp.Exists(FilePath + "out/wms-wood.csv"))
                 {
-                    sftp.DeleteFile(FilePath + "out/wms-wood.csv");
+                    var dir = new DirectoryInfo(DownloadPath);
+                    var date = DateTime.Now.ToString("yyyy-MM-dd HHmmssffff");
+                    sftp.RenameFile(FilePath + "out/wms-wood.csv", FilePath + date + "wms-wood.csv");
+                    scp.Download(FilePath + date + "wms-wood.csv", dir);
+                    sftp.DeleteFile(FilePath + date + "wms-wood.csv");
                 }
             }
             if (type == "ACI" || type == "ACO" || type == "SMO")

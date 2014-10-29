@@ -70,6 +70,7 @@ namespace GDS.WMS.Services.Impl
                     if (index != entities.Count - 1) continue;
                     dao.Add("gds.wms.workitem", add);
                 }
+                ssh.RunCommand("rm " + filePath + filename + ".csv");
                 response.IsSuccess = true;
                 response.Count = entities.Count;
                 sftp.DeleteFile(filePath + filename + ".csv");
