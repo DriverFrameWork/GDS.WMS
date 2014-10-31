@@ -105,16 +105,16 @@ namespace GDS.WMS.WFApplication
         {
             var response = new BaseResponse();
             var service = ServicesFactory.GetInstance<IMaster>();
-            service.Run("WOO");
-            //logger.Info("读取工单领料结束");
+            //service.Run("WOO");
+            ////logger.Info("读取工单领料结束");
 
-            //logger.Info("读取计划外入库开始");
-            service.Run("PNI");
-            //logger.Info("读取计划外入库结束");
+            ////logger.Info("读取计划外入库开始");
+            //service.Run("PNI");
+            ////logger.Info("读取计划外入库结束");
 
-            //logger.Info("读取计划外出库开始");
-            service.Run("PNO");
-            //logger.Info("读取计划外出库结束");
+            ////logger.Info("读取计划外出库开始");
+            //service.Run("PNO");
+            ////logger.Info("读取计划外出库结束");
 
             //logger.Info("读取调拨入库开始");
             service.Run("ACI");

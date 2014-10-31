@@ -188,6 +188,7 @@ namespace GDS.WMS.Services.Impl
                 }
             }
             sftp.Disconnect();
+            scp.Disconnect();
             response.IsSuccess = true;
             return response;
         }
