@@ -37,25 +37,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>E:\Lib\Autofac.dll</HintPath>
+      <HintPath>..\Lib\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Autofac.Configuration">
-      <HintPath>E:\Lib\Autofac.Configuration.dll</HintPath>
+      <HintPath>..\Lib\Autofac.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="C5">
-      <HintPath>E:\Lib\C5.dll</HintPath>
+      <HintPath>..\Lib\C5.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging">
-      <HintPath>E:\Lib\Common.Logging.dll</HintPath>
+      <HintPath>..\Lib\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging.Log4Net">
-      <HintPath>E:\Lib\Common.Logging.Log4Net.dll</HintPath>
+      <HintPath>E:\开发工具\Lib\Common.Logging.Log4Net.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>E:\Lib\log4net.dll</HintPath>
+      <HintPath>E:\开发工具\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Quartz">
-      <HintPath>E:\Lib\Quartz.dll</HintPath>
+      <HintPath>..\Lib\Quartz.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />

@@ -35,20 +35,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>E:\Lib\Common.Logging.dll</HintPath>
+      <HintPath>..\Lib\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging.Log4Net">
-      <HintPath>E:\Lib\Common.Logging.Log4Net.dll</HintPath>
+      <HintPath>..\Lib\Common.Logging.Log4Net.dll</HintPath>
     </Reference>
     <Reference Include="FileHelpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3e0c08d59cc3d657, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Lib\FileHelpers.dll</HintPath>
+      <HintPath>..\Lib\FileHelpers.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>E:\Lib\log4net.dll</HintPath>
+      <HintPath>..\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Quartz">
-      <HintPath>E:\Lib\Quartz.dll</HintPath>
+      <HintPath>..\Lib\Quartz.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

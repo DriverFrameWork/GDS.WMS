@@ -35,7 +35,7 @@ namespace GDS.WMS.Services.Impl
                 var dao = new ServicesBase<AffairItem>(new Dao<AffairItem>());
 
                 var filename = Guid.NewGuid() + ".csv";
-                var file = new FileInfo(Path + filename);
+                var file = new FileInfo(Path+ filename);
                 var data = GetAffairListByType(file, type);
                 var stream = string.Empty;
                 if (data != null && data.Count > 0)
