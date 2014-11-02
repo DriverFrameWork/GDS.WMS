@@ -21,6 +21,7 @@ namespace GDS.WMS.Services.Impl
         private static readonly string HostName = ConfigurationManager.AppSettings["HostName"] ?? "192.168.90.90";
         private static readonly string FilePath = ConfigurationManager.AppSettings["Path"];
         private static readonly string IsTrue = ConfigurationManager.AppSettings["IsTrue"];
+
         public BaseResponse Run(string type)
         {
             var response = new BaseResponse();
@@ -35,7 +36,7 @@ namespace GDS.WMS.Services.Impl
                 var dao = new ServicesBase<AffairItem>(new Dao<AffairItem>());
 
                 var filename = Guid.NewGuid() + ".csv";
-                var file = new FileInfo(Path+ filename);
+                var file = new FileInfo(Path + filename);
                 var data = GetAffairListByType(file, type);
                 var stream = string.Empty;
                 if (data != null && data.Count > 0)
@@ -73,73 +74,82 @@ namespace GDS.WMS.Services.Impl
                         {
                             var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
                         }
-                        stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
-                    }
-                    //计划外入库/计划外出库
-                    if (type == "PNO" || type == "PNI")
-                    {
-                        if (IsTrue == "false")
+                        if (sftp.Exists(FilePath + "out/wms-trd.csv"))
                         {
-                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",unp");
+                            stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
                         }
-                        else
+                        //计划外入库/计划外出库
+                        if (type == "PNO" || type == "PNI")
                         {
-                            var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",unp");
+                            if (IsTrue == "false")
+                            {
+                                ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",unp");
+                            }
+                            else
+                            {
+                                var termial = ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",unp");
+                            }
+                            if (sftp.Exists(FilePath + "out/wms-trd.csv"))
+                            {
+                                stream = sftp.ReadAllText(FilePath + "out/unp-result.csv", Encoding.Default);
+                            }
                         }
-                        stream = sftp.ReadAllText(FilePath + "out/unp-result.csv", Encoding.Default);
-                    }
-                    //调拨出入库
-                    if (type == "ACI" || type == "ACO")
-                    {
-                        if (IsTrue == "false")
+                        //调拨出入库
+                        if (type == "ACI" || type == "ACO")
                         {
-                            ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",trd");
+                            if (IsTrue == "false")
+                            {
+                                ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",trd");
+                            }
+                            else
+                            {
+                                ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",trd");
+                            }
+                            if (sftp.Exists(FilePath + "out/wms-trd.csv"))
+                            {
+                                stream = sftp.ReadAllText(FilePath + "out/trd-result.csv", Encoding.Default);
+                            }
                         }
-                        else
-                        {
-                            ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",trd");
-                        }
-                        stream = sftp.ReadAllText(FilePath + "out/trd-result.csv", Encoding.Default);
-                    }
-                    ssh.RunCommand("rm " + FilePath + "in/" + filename);
-                    //执行成功后，返回执行结果
+                        ssh.RunCommand("rm " + FilePath + "in/" + filename);
+                        //执行成功后，返回执行结果
 
-                    if (!string.IsNullOrEmpty(stream))
-                    {
-                        var enginer = new FileHelperEngine<QADResponse>();
-                        var res = enginer.ReadStringAsList(stream);
-                        var result = new List<AffairItem>();
-                        var dic = new Dictionary<int, int>();
-                        foreach (var t in res)
+                        if (!string.IsNullOrEmpty(stream))
                         {
-                            if (!dic.ContainsKey(t.Id))
-                                dic.Add(t.Id, t.Status);
+                            var enginer = new FileHelperEngine<QADResponse>();
+                            var res = enginer.ReadStringAsList(stream);
+                            var result = new List<AffairItem>();
+                            var dic = new Dictionary<int, int>();
+                            foreach (var t in res)
+                            {
+                                if (!dic.ContainsKey(t.Id))
+                                    dic.Add(t.Id, t.Status);
+                            }
+                            for (var i = 0; i < data.Count; i++)
+                            {
+                                var id = data[i].Id;
+                                if (!dic.ContainsKey(id) || dic[id] != 1) continue;
+                                data[i].Status = dic[id];
+                                result.Add(data[i]);
+                                dic.Remove(data[i].Id);
+                            }
+                            if (result.Count > 0)
+                            {
+                                dao.Update("gds.wms.affairitem", result);
+                            }
                         }
-                        for (var i = 0; i < data.Count; i++)
-                        {
-                            var id = data[i].Id;
-                            if (!dic.ContainsKey(id) || dic[id] != 1) continue;
-                            data[i].Status = dic[id];
-                            result.Add(data[i]);
-                            dic.Remove(data[i].Id);
-                        }
-                        if (result.Count > 0)
-                        {
-                            dao.Update("gds.wms.affairitem", result);
-                        }
+                        response.Data = data;
+                        response.IsSuccess = true;
+                        response.Count = data.Count;
+                        ssh.Disconnect();
+                        sftp.Disconnect();
                     }
-                    response.Data = data;
-                    response.IsSuccess = true;
-                    response.Count = data.Count;
-                    ssh.Disconnect();
-                    sftp.Disconnect();
-                }
-                else
-                {
-                    response.IsSuccess = false;
-                    return response;
-                }
+                    else
+                    {
+                        response.IsSuccess = false;
+                        return response;
+                    }
 
+                }
             }
             catch (Exception ex)
             {
@@ -147,7 +157,10 @@ namespace GDS.WMS.Services.Impl
                 return response;
             }
             return response;
+
         }
+
+
 
         public IList<AffairItem> GetAffairListByType(FileInfo fileInfo, string type)
         {
