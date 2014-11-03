@@ -33,7 +33,7 @@ namespace GDS.WMS.Model
         /// 项次
         /// </summary>
         [FieldOrder(2)]
-        [FieldNullValue(0)]
+        [FieldNullValue(1)]
         private int _line;
         public int Line
         {

@@ -20,22 +20,24 @@ namespace GDS.WMS.ClientService
             try
             {
                 BootStrapper.ServicesRegistry();
-                logger.Info("同步事务主数据任务开始运行");
+                logger.Info("同步调拨事务主数据任务开始运行");
                 var sw = new Stopwatch();
                 sw.Start();
                 var service = ServicesFactory.GetInstance<IAffair>();
                 logger.Info("调拨入库开始");
-                service.Run("ACI");
-                logger.Info("调拨入库开始");
+                var aci = service.Run("ACI");
+                logger.Info(aci.ErrorMessage + " " + aci.Count + " " + aci.IsSuccess);
+                logger.Info("调拨入库结束");
                 logger.Info("调拨出库开始");
-                service.Run("ACO");
-                logger.Info("调拨出库开始");
+                var aco = service.Run("ACO");
+                logger.Info(aco.ErrorMessage + " " + aco.Count + " " + aco.IsSuccess);
+                logger.Info("调拨出库结束");
                 sw.Stop();
-                logger.Info("同步事务主数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
+                logger.Info("同步调拨事务主数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
             }
             catch (Exception ex)
             {
-                logger.Error("同步事务主数据任务运行异常", ex);
+                logger.Error("同步调拨事务主数据任务运行异常", ex);
             }
         }
     }

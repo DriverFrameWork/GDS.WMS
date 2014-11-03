@@ -95,8 +95,8 @@ namespace GDS.WMS.WFApplication
         public BaseResponse RunAffair()
         {
             var service = ServicesFactory.GetInstance<IAffair>();
-            var response = service.Run("PNO");
-            service.Run("PNI");
+            var response = service.Run("POI");
+            service.Run("PO");
             return response;
         }
 
@@ -109,11 +109,11 @@ namespace GDS.WMS.WFApplication
             ////logger.Info("读取工单领料结束");
 
             //logger.Info("读取计划外入库开始");
-            service.Run("PNI");
+            service.Run("POI");
             //logger.Info("读取计划外入库结束");
 
             //logger.Info("读取计划外出库开始");
-            service.Run("PNO");
+            //service.Run("PNO");
             //logger.Info("读取计划外出库结束");
 
             //logger.Info("读取调拨入库开始");

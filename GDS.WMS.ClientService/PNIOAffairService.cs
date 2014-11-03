@@ -20,18 +20,20 @@ namespace GDS.WMS.ClientService
             try
             {
                 BootStrapper.ServicesRegistry();
-                logger.Info("同步事务主数据任务开始运行");
+                logger.Info("同步计划外事务主数据任务开始运行");
                 var sw = new Stopwatch();
                 sw.Start();
                 var service = ServicesFactory.GetInstance<IAffair>();
                 logger.Info("计划外入库开始");
-                service.Run("PNI");
+                var pni = service.Run("PNI");
+                logger.Info(pni.ErrorMessage + " " + pni.Count + " " + pni.IsSuccess);
                 logger.Info("计划外入库结束");
                 logger.Info("计划外出库开始");
-                service.Run("PNO");
+                var pno = service.Run("PNO");
+                logger.Info(pno.ErrorMessage + " " + pno.Count + " " + pno.IsSuccess);
                 logger.Info("计划外出库结束");
                 sw.Stop();
-                logger.Info("同步事务主数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
+                logger.Info("同步计划外事务主数据任务结束运行,总运行时间:" + sw.Elapsed.TotalMilliseconds + "毫秒");
             }
             catch (Exception ex)
             {
