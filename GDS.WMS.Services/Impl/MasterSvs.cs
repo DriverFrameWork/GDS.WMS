@@ -24,14 +24,14 @@ namespace GDS.WMS.Services.Impl
 
         private static readonly Common.Logging.ILog logger = Common.Logging.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public BaseResponse Run(string type)
+        public BaseResponse Run(SftpClient sftp,ScpClient scp,string type)
         {
             var response = new BaseResponse();
             var dao = new ServicesBase<BusinessMstr>(new Dao<BusinessMstr>());
-            var sftp = new SftpClient(HostName, UserName, Password);
-            var scp = new ScpClient(HostName, UserName, Password);
-            scp.Connect();
-            sftp.Connect();
+            //var sftp = new SftpClient(HostName, UserName, Password);
+            //var scp = new ScpClient(HostName, UserName, Password);
+            //scp.Connect();
+            //sftp.Connect();
             try
             {
                 var master = string.Empty;
@@ -187,8 +187,7 @@ namespace GDS.WMS.Services.Impl
                     sftp.DeleteFile(FilePath + "out/wms-unpd.csv");
                 }
             }
-            sftp.Disconnect();
-            scp.Disconnect();
+
             response.IsSuccess = true;
             return response;
         }

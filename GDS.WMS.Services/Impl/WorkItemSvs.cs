@@ -46,6 +46,9 @@ namespace GDS.WMS.Services.Impl
                     response.Count = 0;
                     response.Data = null;
                     response.ErrorMessage = "没有可以更新的数据";
+                    ssh.RunCommand("exit");
+                    ssh.Disconnect();
+                    sftp.Disconnect();
                     return response;
                 }
                 var entities = engine.ReadStringAsList(stream);
@@ -72,12 +75,14 @@ namespace GDS.WMS.Services.Impl
                 ssh.RunCommand("rm  " + filePath + filename + ".csv");
                 response.IsSuccess = true;
                 response.Count = entities.Count;
+                ssh.RunCommand("exit");
                 ssh.Disconnect();
                 sftp.Disconnect();
             }
             catch (Exception ex)
             {
                 response.IsSuccess = false;
+
                 response.ErrorMessage = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return response;

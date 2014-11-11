@@ -28,11 +28,14 @@ namespace GDS.WMS.WFApplication
         private static readonly string DbName = ConfigurationManager.AppSettings["dbName"] ?? "mfggds.db";
         private static readonly string FilePath = ConfigurationManager.AppSettings["Path"];
         public readonly string Path = ConfigurationManager.AppSettings["DownloadPath"];
+        private static readonly SshClient Ssh = new SshClient(HostName, UserName, Password);
+        private static readonly SftpClient Sftp = new SftpClient(HostName, UserName, Password);
+
         public frmMain()
         {
             InitializeComponent();
             BootStrapper.ServicesRegistry();
-            RunAffair();
+            RunMaster();
         }
 
         private void btnSyncWorkItem_Click(object sender, EventArgs e)
@@ -77,12 +80,16 @@ namespace GDS.WMS.WFApplication
                     dao.Add("gds.wms.workitem", add);
                 }
                 ssh.RunCommand("rm " + FilePath + filename + ".csv");
+                ssh.Disconnect();
+                sftp.Disconnect();
                 dgvData.DataSource = data;
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+
 
         }
 
@@ -95,8 +102,8 @@ namespace GDS.WMS.WFApplication
         public BaseResponse RunAffair()
         {
             var service = ServicesFactory.GetInstance<IAffair>();
-            var response = service.Run("POI");
-            service.Run("PO");
+            var response = service.Run(Ssh,Sftp,"WOO");
+            //service.Run("PO");
             return response;
         }
 
@@ -105,11 +112,14 @@ namespace GDS.WMS.WFApplication
         {
             var response = new BaseResponse();
             var service = ServicesFactory.GetInstance<IMaster>();
-            //service.Run("WOO");
+            var scp = new ScpClient(HostName,UserName,Password);
+            scp.Connect();
+            Sftp.Connect();
+            service.Run(Sftp,scp,"WOO");
             ////logger.Info("读取工单领料结束");
 
             //logger.Info("读取计划外入库开始");
-            service.Run("POI");
+            //service.Run("POI");
             //logger.Info("读取计划外入库结束");
 
             //logger.Info("读取计划外出库开始");
@@ -125,5 +135,12 @@ namespace GDS.WMS.WFApplication
             //service.Run("ACI");
             return response;
         }
+
+        //public BaseResponse RunStock()
+        //{
+        //    var service = ServicesFactory.GetInstance<IStocking>();
+        //    BaseResponse response = service.Run();
+        //    return response;
+        //}
     }
 }

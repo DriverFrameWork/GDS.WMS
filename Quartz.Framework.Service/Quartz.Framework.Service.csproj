@@ -88,7 +88,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="config\autofac.config" />
+    <None Include="config\autofac.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="quartz.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

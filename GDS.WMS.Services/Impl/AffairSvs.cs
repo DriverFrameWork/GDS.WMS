@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EStudio.Framework;
 using EStudio.Framework.Logging;
@@ -24,52 +25,42 @@ namespace GDS.WMS.Services.Impl
         private static readonly string IsTrue = ConfigurationManager.AppSettings["IsTrue"];
         private static readonly Common.Logging.ILog logger = Common.Logging.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public BaseResponse Run(string type)
+        public BaseResponse Run(SshClient ssh, SftpClient sftp, string type)
         {
             var response = new BaseResponse();
             try
             {
-                //var scp = new ScpClient(HostName, UserName, Password);
-                var ssh = new SshClient(HostName, UserName, Password);
-                var sftp = new SftpClient(HostName, UserName, Password);
-                //scp.Connect();
-                ssh.Connect();
-                sftp.Connect();
                 var dao = new ServicesBase<AffairItem>(new Dao<AffairItem>());
-
                 var filename = Guid.NewGuid() + ".csv";
                 var file = new FileInfo(Path + filename);
                 var data = GetAffairListByType(file, type);
                 var stream = string.Empty;
-                SshCommand command = null;
                 if (data != null && data.Count > 0)
                 {
+                    SshCommand command = null;
+                    //var ssh = new SshClient(HostName, UserName, Password);
+                    //var sftp = new SftpClient(HostName, UserName, Password);
+                    ssh.Connect();
+                    sftp.Connect();
                     var fileStream = new FileStream(Path + filename, FileMode.Open);
+                    sftp.UploadFile(fileStream, FilePath + "in/" + filename);
                     //采购入库
                     if (type == "POI")
                     {
-                        sftp.UploadFile(fileStream, "/app/tomcat6/webapps/web/" + filename);
-                        if (IsTrue == "false")
+                        command = IsTrue == "false"
+                            ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",poo")
+                            : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",poo");
+                        if (sftp.Exists(FilePath + "out/poo-result.csv"))
                         {
-                            command = ssh.RunCommand("/backup/qad/bat/client.pointest" + " " + filename);
+                            stream = sftp.ReadAllText(FilePath + "out/poo-result.csv", Encoding.Default);
                         }
-                        else
-                        {
-                            command = ssh.RunCommand("/backup/qad/bat/client.poin" + " " + filename);
-                        }
-                        foreach (var affairItem in data)
-                        {
-                            affairItem.Status = 1;
-                        }
-                        dao.Update("gds.wms.affairitem", data);
-                        return response;
-                        //stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
                     }
-                    sftp.UploadFile(fileStream, FilePath + "in/" + filename);
                     //工单发料
                     if (type == "WOO")
                     {
-                        command = IsTrue == "false" ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",woo") : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
+                        command = IsTrue == "false"
+                            ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",woo")
+                            : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",woo");
                         if (sftp.Exists(FilePath + "out/woo-result.csv"))
                         {
                             stream = sftp.ReadAllText(FilePath + "out/woo-result.csv", Encoding.Default);
@@ -78,7 +69,9 @@ namespace GDS.WMS.Services.Impl
                     //计划外入库/计划外出库
                     if (type == "PNO" || type == "PNI")
                     {
-                        command = IsTrue == "false" ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",unp") : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",unp");
+                        command = IsTrue == "false"
+                            ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",unp")
+                            : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",unp");
                         if (sftp.Exists(FilePath + "out/unp-result.csv"))
                         {
                             stream = sftp.ReadAllText(FilePath + "out/unp-result.csv", Encoding.Default);
@@ -87,7 +80,9 @@ namespace GDS.WMS.Services.Impl
                     //调拨出入库
                     if (type == "ACI" || type == "ACO")
                     {
-                        command = IsTrue == "false" ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",trd") : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",trd");
+                        command = IsTrue == "false"
+                            ? ssh.RunCommand("/backup/qad/bat/client.test" + " " + filename + ",trd")
+                            : ssh.RunCommand("/backup/qad/bat/client.auto" + " " + filename + ",trd");
                         if (sftp.Exists(FilePath + "out/trd-result.csv"))
                         {
                             stream = sftp.ReadAllText(FilePath + "out/trd-result.csv", Encoding.Default);
@@ -103,10 +98,9 @@ namespace GDS.WMS.Services.Impl
                         var res = enginer.ReadStringAsList(stream);
                         var result = new List<AffairItem>();
                         var dic = new Dictionary<int, int>();
-                        foreach (var t in res)
+                        foreach (var t in res.Where(t => !dic.ContainsKey(t.Id)))
                         {
-                            if (!dic.ContainsKey(t.Id))
-                                dic.Add(t.Id, t.Status);
+                            dic.Add(t.Id, t.Status);
                         }
                         for (var i = 0; i < data.Count; i++)
                         {
@@ -118,22 +112,30 @@ namespace GDS.WMS.Services.Impl
                         }
                         if (result.Count > 0)
                         {
-                            dao.Update("gds.wms.affairitem", result);
+                            // dao.Update("gds.wms.affairitem", result);
                         }
-
                         response.Data = data;
                         response.IsSuccess = true;
                         response.Count = data.Count;
-                        ssh.Disconnect();
-                        sftp.Disconnect();
                     }
                     else
                     {
                         response.IsSuccess = false;
-                        return response;
                     }
-
+                    //ssh.RunCommand("exit");
+                    //ssh.Disconnect();
+                    //sftp.Disconnect();
+                    return response;
                 }
+                if (File.Exists(Path + filename))
+                    try
+                    {
+                        File.Delete(Path + filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.Message);
+                    }
             }
             catch (Exception ex)
             {
@@ -154,23 +156,26 @@ namespace GDS.WMS.Services.Impl
             if (type == "POI")
             {
                 entities = dao.FetchMany("gds.wms.affairitem.getpoi", hashTable);
-                using (var sw = fileInfo.CreateText())
+                if (entities != null && entities.Count > 0)
                 {
-                    foreach (var entity in entities)
+                    using (var sw = fileInfo.CreateText())
                     {
-                        var id = entity.Id;
-                        var qadNo = entity.QADNo.Trim();
-                        var line = entity.SNID;
-                        var partNo = entity.PartNo.Trim();
-                        var qty = entity.AffairQty;
-                        var loc = entity.Location;
-                        var lotser = string.IsNullOrEmpty(entity.Lotser) ? " " : entity.Lotser;
-                        var xh = string.IsNullOrEmpty(entity.Ref) ? " " : entity.Ref;
-                        sw.WriteLine(qadNo + " " + line + " " + qty);
+                        foreach (var entity in entities)
+                        {
+                            var id = entity.Id;
+                            var qadNo = entity.QADNo.Trim();
+                            var line = entity.SNID;
+                            var partNo = entity.PartNo.Trim();
+                            var qty = entity.AffairQty;
+                            var loc = entity.Location;
+                            var lotser = string.IsNullOrEmpty(entity.Lotser) ? " " : entity.Lotser;
+                            var xh = string.IsNullOrEmpty(entity.Ref) ? " " : entity.Ref;
+                            sw.WriteLine(id + " " + qadNo + " " + line + " " + qty);
+                        }
+                        sw.Flush();
+                        sw.Close();
+                        return entities;
                     }
-                    sw.Flush();
-                    sw.Close();
-                    return entities;
                 }
             }
             //工单发料
@@ -218,6 +223,7 @@ namespace GDS.WMS.Services.Impl
                     var xh = string.IsNullOrEmpty(entity.Ref) ? " " : entity.Ref;
                     sw.WriteLine(id + "," + qadNo + "," + otype + "," + partNo + "," + qty + "," + loc + "," + lotser + "," + xh);
                 }
+                //var sftp = new SftpClient("", "", "");
                 sw.Flush();
                 sw.Close();
                 return entities;

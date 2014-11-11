@@ -51,6 +51,7 @@
     <Compile Include="BusinessDet.cs" />
     <Compile Include="BusinessMstr.cs" />
     <Compile Include="QADResponse.cs" />
+    <Compile Include="Stocking.cs" />
     <Compile Include="WorkItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -26,28 +26,28 @@
             delete from Affair where Id = #id#
         </delete>
         <select id="gds.wms.affairitem.getpoi" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'POI'
+            select * from Affair where  Status = #status# and Type = 'POI' and AffairQty > 0 
         </select>
         <select id="gds.wms.affairitem.getpni" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'PNI'
+          select * from Affair where Status = #status# and Type = 'PNI' and AffairQty > 0
         </select>
         <select id="gds.wms.affairitem.getaci" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'ACI'
+          select * from Affair where Status = #status# and Type = 'ACI' and AffairQty > 0
         </select>
         <select id="gds.wms.affairitem.getsmo" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'SMO'
+          select * from Affair where Status = #status# and Type = 'SMO' and AffairQty > 0
         </select>
       <select id="gds.wms.affairitem.getaco" resultMap="AffairItem" parameterClass="Hashtable">
-        select * from Affair where Status = #status# and Type = 'ACO'
+        select * from Affair where Status = #status# and Type = 'ACO' and AffairQty > 0
       </select>
-        <select id="gds.wms.affairitem.getwoo" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'WOO'
-        </select>
+      <select id="gds.wms.affairitem.getwoo" resultMap="AffairItem" parameterClass="Hashtable">
+        select * from Affair where Status = #status# and Type = 'WOO' and AffairQty > 0
+      </select>
         <select id="gds.wms.affairitem.getpno" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'PNO'
+          select * from Affair where Status = #status# and Type = 'PNO' and AffairQty > 0
         </select>
         <select id="gds.wms.affairitem.getdpo" resultMap="AffairItem" parameterClass="Hashtable">
-            select * from Affair where Status = #status# and Type = 'DPO'
+          select * from Affair where Status = #status# and Type = 'DPO' and AffairQty > 0
         </select>
         <select id="gds.wms.affairitem.getall" resultMap="AffairItem" parameterClass="Hashtable">
             select * from Affair where Status = #status#

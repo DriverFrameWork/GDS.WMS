@@ -71,9 +71,11 @@
     <Compile Include="BootStrapper.cs" />
     <Compile Include="Impl\AffairSvs.cs" />
     <Compile Include="Impl\MasterSvs.cs" />
+    <Compile Include="Impl\StockingSvs.cs" />
     <Compile Include="Impl\WorkItemSvs.cs" />
     <Compile Include="Interface\IAffair.cs" />
     <Compile Include="Interface\IMaster.cs" />
+    <Compile Include="Interface\IStocking.cs" />
     <Compile Include="Interface\IWorkItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />
